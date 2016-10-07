@@ -1,0 +1,7 @@
+set solib-search-path /Users/jnoble/code/of/android/apps/myApps/MarioCard//obj/local/armeabi-v7a:/Users/jnoble/code/of/android/apps/myApps/MarioCard//libs/armeabi-v7a
+set sysroot /Users/jnoble/android/android-ndk-r10e/platforms/android-19/arch-x86/
+directory /Users/jnoble/android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include
+directory /Users/jnoble/code/of/android/apps/myApps/MarioCard//src
+directory /Users/jnoble/android/android-ndk-r10e/sources/cxx-stl/system
+directory /Users/jnoble/code/of/android/apps/myApps/MarioCard//libs/armeabi-v7a
+

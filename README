@@ -1,9 +1,0 @@
-
-
-This will be where we play MarioKardt! It's like MarioKart, but with Kards on the floor and physical bots instead of virtual ones. We're building the bots with Teensy boards on a 3 wheeled bot chassis with a WiFly shield to connect all of the bots to a central server. 'How do you control the phone?' you ask? With your phone of course! We'll show you schematics and other fun as we go.
-
-The schematic is available in a Fritzing file, if you don't know what Fritzing is check it out here: http://fritzing.org/ 
-
-You can find the WiFly library here:
-https://github.com/harlequin-tech/WiFlyHQ
-

@@ -26,6 +26,7 @@ class WebSocketsHandler(SocketServer.StreamRequestHandler):
     def handle(self):
         while True:
             if not self.handshake_done:
+		print "handshake"
                 self.handshake()
             else:
                 self.read_next_message()
@@ -71,6 +72,7 @@ class WebSocketsHandler(SocketServer.StreamRequestHandler):
             self.request.send('\x00' + message + '\xff')
 
     def handshake(self):
+	print "handshake"
         data = self.request.recv(1024).strip()
         dSplit = data.split('\r\n', 1)
         if len(dSplit) > 1 :
@@ -113,37 +115,42 @@ class WebSocketsHandler(SocketServer.StreamRequestHandler):
         # only browsers send a security key
         if(self.hasSecKey):
             #make sure we have at least a whole message
-            if self.receivedMessage.find("left") != -1 and len(self.receivedMessage) > 6:
-                self.receivedMessage = self.receivedMessage[self.receivedMessage.index("left"):len(self.receivedMessage)]
-                self.server.routeControlSignal(self, self.receivedMessage, LEFT)
-                self.receivedMessage = ""
+            #if self.receivedMessage.find("left") != -1 and len(self.receivedMessage) > 6:
+            #    self.receivedMessage = self.receivedMessage[self.receivedMessage.index("left"):len(self.receivedMessage)]
+            #    self.server.routeControlSignal(self, self.receivedMessage, LEFT)
+            #    self.receivedMessage = ""
 
             #make sure we have at least a whole message
-            if self.receivedMessage.find("right") != -1 and len(self.receivedMessage) > 7:
-                self.receivedMessage = self.receivedMessage[self.receivedMessage.index("right"):len(self.receivedMessage)]
-                self.server.routeControlSignal(self, self.receivedMessage, RIGHT)
-                self.receivedMessage = ""
+            #if self.receivedMessage.find("right") != -1 and len(self.receivedMessage) > 7:
+            #    self.receivedMessage = self.receivedMessage[self.receivedMessage.index("right"):len(self.receivedMessage)]
+            #    self.server.routeControlSignal(self, self.receivedMessage, RIGHT)
+            #    self.receivedMessage = ""
 	
 
-	    if self.receivedMessage.find("speed") != -1 and len(self.receivedMessage) > 12:
-		speedStart = self.receivedMessage.index("speed:")
-		lspeed = self.receivedMessage[speedStart+6:speedStart+9]
+	    if  len(self.receivedMessage) > 6:
+		lspeed = self.receivedMessage[0:3] # don't mess with negative numbers
 		self.server.routeControlSignal(self, lspeed, LEFT)
-		rspeed = self.receivedMessage[speedStart+10:speedStart+14]
+		rspeed = self.receivedMessage[4:7] # don't mess with negative numbers
 		print " speed " + str(lspeed) + " " + str(rspeed)
-		#print " right speed " + str(rspeed)
 		self.server.routeControlSignal(self, rspeed, RIGHT)
                 self.receivedMessage = ""
 
         else:
 
-            if self.receivedMessage.find("color:") != -1 and len(self.receivedMessage) > 7:
+	    if self.receivedMessage.find("color:") != -1 and len(self.receivedMessage) > 7:
 		print "Received a color " + self.receivedMessage
                 colorSent = self.receivedMessage.split(':')[1]
 		print "color sent = " + colorSent
                 self.server.getColor(self, colorSent[0])
 	        self.receivedMessage = ""
-
+	    elif  len(self.receivedMessage) > 6:
+		lspeed = self.receivedMessage[0:3] # don't mess with negative numbers
+		self.server.routeControlSignal(self, lspeed, LEFT)
+		rspeed = self.receivedMessage[4:7] # don't mess with negative numbers
+		print " speed " + str(lspeed) + " " + str(rspeed)
+		self.server.routeControlSignal(self, rspeed, RIGHT)
+                self.receivedMessage = ""
+		
 
 class WSServer(ThreadingTCPServer):
 
@@ -156,24 +163,24 @@ class WSServer(ThreadingTCPServer):
     currentGameEventOwner = ""
 
     def handle_request(self):
-        #print " handle request "
+        print " handle request "
         handler = ThreadingTCPServer.handle_request(self)
         handler.set_handlers(self.handleWiFlyMessage, self.handleBrowserMessage)
         return handler
 
     def finish_request(self, *args, **kws):
-        #print "process request"
+        print "process request"
         handler = ThreadingTCPServer.finish_request(self, *args, **kws)
 
     def addWiFly(self, handler):
-        #print "handleWiFlyMessage"
+        print "handleWiFlyMessage"
         self.wiflyClients.append(handler)
         if(len(self.wiflyClients) > len(self.browserClients) and len(self.browserClients) > len(self.jointBrowserWifly)):
             joint = {'wifly':handler, 'browser':browserClients[len(browserClients)-1], 'cachedSpeed':[122, 122]}
             self.jointBrowserWifly.append(joint)
 
     def addBrowser(self, handler):
-        #print "handleBrowserMessage"
+        print "handleBrowserMessage"
         self.browserClients.append(handler)
         if(len(self.browserClients) > len(self.jointBrowserWifly) and len(self.wiflyClients) > len(self.jointBrowserWifly)):
             joint = {'wifly':self.wiflyClients[len(self.wiflyClients)-1], 'browser':handler, 'cachedSpeed':[122, 122]}
@@ -281,6 +288,8 @@ if __name__ == "__main__":
 
     server_thread.setDaemon(True)
     server_thread.start()
+
+    print str(ip) + ' ' + str(port)
 
     while 1:
         num = 0

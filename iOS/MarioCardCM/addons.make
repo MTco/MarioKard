@@ -1,0 +1,2 @@
+ofxCoreMotion
+ofxNetwork
